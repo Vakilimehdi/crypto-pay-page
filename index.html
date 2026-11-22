@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crypto Pay — Shareable payment link for freelancers</title>
+<title>فروشگاه محصولات دیجیتال | Digital Products Store</title>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -13,501 +13,176 @@
     --accent: #0e9f6e;
     --accent-dark: #0b7d57;
     --border: #d9dee6;
-    --error: #c81e1e;
-    --error-bg: #fdecea;
     --radius: 14px;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
-    line-height: 1.55;
+    line-height: 1.7;
   }
-  .wrap { max-width: 600px; margin: 0 auto; padding: 24px 16px 48px; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
   header { text-align: center; margin-bottom: 24px; }
-  header h1 { margin: 0 0 4px; font-size: 28px; letter-spacing: -0.02em; }
-  header h1 .mark { color: var(--accent); }
+  header h1 { margin: 0 0 4px; font-size: 28px; }
   header p { margin: 0; color: var(--muted); font-size: 15px; }
   .card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 24px;
+    padding: 22px;
     box-shadow: 0 2px 10px rgba(16, 24, 40, 0.05);
-  }
-  .hidden { display: none !important; }
-  h2 { margin: 0 0 16px; font-size: 20px; }
-  label { display: block; font-weight: 600; font-size: 14px; margin: 16px 0 6px; }
-  label:first-of-type { margin-top: 0; }
-  input[type="text"], select {
-    width: 100%;
-    padding: 11px 12px;
-    font-size: 16px;
-    font-family: inherit;
-    color: var(--text);
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    outline: none;
-  }
-  input[type="text"]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.15); }
-  input.invalid, select.invalid { border-color: var(--error); }
-  .hint { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
-  .error { font-size: 13px; color: var(--error); margin: 4px 0 0; }
-  .banner {
-    background: var(--error-bg);
-    color: var(--error);
-    border: 1px solid #f5c6c2;
-    border-radius: 9px;
-    padding: 10px 12px;
-    font-size: 14px;
     margin-bottom: 16px;
   }
-  .pills { display: flex; gap: 8px; }
-  .pill {
-    flex: 1;
-    padding: 11px 8px;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 600;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    background: #fff;
-    color: var(--text);
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .pill[aria-pressed="true"] {
+  h2 { margin: 0 0 12px; font-size: 20px; }
+  h3 { margin: 0 0 6px; font-size: 18px; }
+  .en { color: var(--muted); font-size: 13px; direction: ltr; text-align: right; }
+  .price {
+    display: inline-block;
     background: var(--accent);
-    border-color: var(--accent);
     color: #fff;
-  }
-  .amount-row { display: flex; gap: 8px; }
-  .amount-row input { flex: 1; }
-  .amount-row .token-tag {
-    display: flex;
-    align-items: center;
-    padding: 0 14px;
-    background: #eef2f5;
-    border: 1px solid var(--border);
-    border-radius: 9px;
     font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 14px;
     font-size: 15px;
-    white-space: nowrap;
+    margin: 6px 0;
+  }
+  .code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: #eef2f6;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: 13px;
+    direction: ltr;
+    display: inline-block;
   }
   .btn {
-    display: block;
-    width: 100%;
-    margin-top: 20px;
-    padding: 13px 16px;
-    font-size: 16px;
-    font-weight: 700;
-    font-family: inherit;
-    text-align: center;
-    text-decoration: none;
-    color: #fff;
+    display: inline-block;
     background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
     border: none;
-    border-radius: 10px;
+    border-radius: 9px;
+    padding: 10px 18px;
+    font-size: 15px;
     cursor: pointer;
+    font-family: inherit;
   }
   .btn:hover { background: var(--accent-dark); }
-  .btn.secondary {
+  .btn.ghost {
     background: #fff;
     color: var(--text);
     border: 1px solid var(--border);
   }
-  .btn.secondary:hover { background: #f0f2f5; }
-  .result { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
-  .result .link-row { display: flex; gap: 8px; }
-  .result .link-row input { flex: 1; font-size: 14px; }
-  .result .link-row .btn { width: auto; margin-top: 0; padding: 11px 16px; }
-  .result a.open-link { display: inline-block; margin-top: 10px; font-size: 14px; color: var(--accent-dark); }
-  .copied { color: var(--accent-dark); font-size: 13px; font-weight: 600; margin-top: 6px; min-height: 18px; }
-
-  /* Pay view */
-  .pay-amount { text-align: center; margin: 8px 0 4px; }
-  .pay-amount .value { font-size: 44px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
-  .pay-amount .token { font-size: 22px; font-weight: 700; color: var(--muted); }
-  .pay-label { text-align: center; color: var(--muted); font-size: 15px; margin: 0 0 20px; word-break: break-word; }
-  .pay-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
-  .pay-row .addr {
-    flex: 1;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 14px;
-    background: #f0f2f5;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 10px 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .pay-row .btn { width: auto; margin-top: 0; padding: 10px 14px; font-size: 14px; }
-  .pay-row .btn.secondary { padding: 10px 14px; }
-  .note {
+  .wallet {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 13px;
-    color: var(--muted);
-    background: #f7f8fa;
+    word-break: break-all;
+    background: #eef2f6;
     border: 1px solid var(--border);
     border-radius: 9px;
     padding: 10px 12px;
-    margin-top: 16px;
+    direction: ltr;
+    text-align: left;
   }
-  .note strong { color: var(--text); }
-  .back-link { display: inline-block; margin-top: 16px; font-size: 14px; color: var(--accent-dark); }
-  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 24px; }
-  @media (max-width: 420px) {
-    .pay-amount .value { font-size: 36px; }
-    .card { padding: 20px 16px; }
-  }
+  ol.steps { margin: 8px 0 0; padding-inline-start: 22px; }
+  ol.steps li { margin-bottom: 10px; }
+  .note { font-size: 14px; color: var(--muted); }
+  .product { margin-bottom: 20px; }
+  .product:last-child { margin-bottom: 0; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 8px; }
+  footer a { color: var(--accent-dark); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Crypto<span class="mark">Pay</span></h1>
-    <p>Get paid in crypto with a single shareable link.</p>
+    <h1>فروشگاه محصولات دیجیتال</h1>
+    <p>Digital Products Store — ready-made templates and tools, delivered automatically after payment.</p>
   </header>
 
-  <!-- ============ GENERATOR VIEW ============ -->
-  <main id="generatorView" class="card">
-    <div id="badLinkBanner" class="banner hidden">That payment link looks broken or incomplete, so the form is shown instead. Check the link and try again.</div>
-    <h2>Create your payment link</h2>
+  <div class="card">
+    <h2>محصولات | Products</h2>
+    <p class="note">نسخه‌ای که در گیت‌هاب می‌بینید دمو است. نسخهٔ کامل بعد از پرداخت، خودکار با ایمیل ارسال می‌شود.
+    The files in the GitHub repos are demos. The full version is emailed automatically after payment.</p>
 
-    <label id="chainLabel">Chain</label>
-    <div class="pills" role="group" aria-labelledby="chainLabel">
-      <button type="button" class="pill" id="chainSolana" aria-pressed="true">Solana</button>
-      <button type="button" class="pill" id="chainEthereum" aria-pressed="false">Ethereum</button>
-    </div>
-
-    <label for="tokenSelect">Token</label>
-    <select id="tokenSelect"></select>
-
-    <label for="addressInput">Your wallet address</label>
-    <input type="text" id="addressInput" autocomplete="off" spellcheck="false" placeholder="e.g. DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK">
-    <p class="hint" id="addressHint">Solana address: 32–44 base58 characters.</p>
-    <p class="error hidden" id="addressError"></p>
-
-    <label for="amountInput">Amount</label>
-    <div class="amount-row">
-      <input type="text" id="amountInput" inputmode="decimal" autocomplete="off" placeholder="e.g. 25">
-      <span class="token-tag" id="amountTokenTag">SOL</span>
-    </div>
-    <p class="error hidden" id="amountError"></p>
-
-    <label for="labelInput">Label / memo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-    <input type="text" id="labelInput" autocomplete="off" placeholder="e.g. Website design — invoice #12">
-
-    <button type="button" class="btn" id="generateBtn">Generate payment link</button>
-
-    <div id="resultBox" class="result hidden">
-      <label>Your shareable payment link</label>
-      <div class="link-row">
-        <input type="text" id="resultLink" readonly>
-        <button type="button" class="btn" id="copyLinkBtn">Copy</button>
+    <div class="product">
+      <h3>قالب‌های تک‌صفحه‌ای — بیو، نمونه‌کار، نویسنده</h3>
+      <div class="en">One-page templates — Bio (Persian), Portfolio, Writer</div>
+      <p>سه قالب تک‌فایل HTML؛ بدون نیاز به نصب یا بیلد. فقط با یک ویرایشگر متن، نام و رنگ و متن را عوض کنید.</p>
+      <span class="price">۵ دلار هر قالب | ۱۰ دلار هر سه قالب</span>
+      <p>کد محصول در ایمیل: <span class="code">bio-fa</span> ، <span class="code">portfolio-en</span> ، <span class="code">writer-en</span> ، <span class="code">templates-set</span></p>
+      <div class="actions">
+        <a class="btn ghost" href="https://github.com/Vakilimehdi/one-page-templates">مشاهدهٔ دمو در گیت‌هاب</a>
       </div>
-      <p class="copied" id="copyFeedback"></p>
-      <a class="open-link" id="previewLink" href="#" target="_blank" rel="noopener">Preview the pay view &rarr;</a>
-    </div>
-  </main>
-
-  <!-- ============ PAY VIEW ============ -->
-  <main id="payView" class="card hidden">
-    <h2 style="text-align:center">Pay this freelancer</h2>
-    <div class="pay-amount">
-      <span class="value" id="payAmount"></span>
-      <span class="token" id="payToken"></span>
-    </div>
-    <p class="pay-label" id="payLabel"></p>
-
-    <label>Wallet address</label>
-    <div class="pay-row">
-      <span class="addr" id="payAddressShort" title=""></span>
-      <button type="button" class="btn secondary" id="copyAddressBtn">Copy address</button>
     </div>
 
-    <div id="solanaPayRow" class="hidden">
-      <a class="btn" id="solanaPayBtn" href="#">Open in wallet (Solana Pay)</a>
-    </div>
-
-    <div id="evmRow" class="hidden">
-      <div class="pay-row">
-        <span class="addr" id="payAmountCopy"></span>
-        <button type="button" class="btn secondary" id="copyAmountBtn">Copy amount</button>
+    <div class="product">
+      <h3>قالب لندینگ هوش مصنوعی</h3>
+      <div class="en">AI landing template</div>
+      <p>صفحهٔ فرود تک‌فایل برای معرفی محصول یا خدمت؛ هیرو، ویژگی‌ها، جدول قیمت، نقل‌قول مشتری و سوالات متداول.</p>
+      <span class="price">۵ دلار</span>
+      <p>کد محصول در ایمیل: <span class="code">ai-landing</span></p>
+      <div class="actions">
+        <a class="btn ghost" href="https://github.com/Vakilimehdi/ai-landing-template">مشاهدهٔ دمو در گیت‌هاب</a>
       </div>
-      <p class="note"><strong>How to pay:</strong> open your Ethereum wallet, send the amount above to the address above, and double-check the address matches the freelancer's before you send. Ethereum has no universal payment deep link, so copying is the reliable way.</p>
     </div>
 
-    <button type="button" class="btn secondary" id="copyPayLinkBtn">Copy payment link</button>
-    <p class="copied" id="payCopyFeedback"></p>
-    <a class="back-link" href="#" id="makeOwnLink">&larr; Create your own pay link</a>
-  </main>
+    <div class="product">
+      <h3>قالب صفحه‌گستردهٔ بودجه</h3>
+      <div class="en">Budget spreadsheet template</div>
+      <p>فایل اکسل بودجه با خلاصهٔ ۱۲ ماهه؛ درآمد و هزینه را وارد کنید، باقی‌مانده و نمودار را ببینید.</p>
+      <span class="price">۵ دلار</span>
+      <p>کد محصول در ایمیل: <span class="code">budget-sheet</span></p>
+      <div class="actions">
+        <a class="btn ghost" href="https://github.com/Vakilimehdi/budget-spreadsheet-template">مشاهدهٔ دمو در گیت‌هاب</a>
+      </div>
+    </div>
+
+    <div class="product">
+      <h3>مدیریت فروشگاه دانشجویی</h3>
+      <div class="en">Student shop manager</div>
+      <p>سیستم تک‌فایل مدیریت فروشگاه کوچک: کالا، فروش، فاکتور و گزارش — فارسی و راست‌چین، مناسب پروژهٔ دانشجویی و فروشگاه واقعی.</p>
+      <span class="price">۱۰ دلار</span>
+      <p>کد محصول در ایمیل: <span class="code">student-shop</span></p>
+      <div class="actions">
+        <a class="btn ghost" href="https://github.com/Vakilimehdi/student-shop-manager">مشاهدهٔ دمو در گیت‌هاب</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>نحوهٔ خرید | How to buy</h2>
+    <ol class="steps">
+      <li><b>پرداخت:</b> مبلغ دقیق محصول را با <b>USDC</b> در شبکهٔ <b>Solana</b> به کیف پول زیر بفرستید.
+        <br><span class="note">Pay the exact product price in USDC on Solana to this wallet:</span>
+        <div class="wallet" id="wallet">HqxvhpdWdBvjk1JvCwLdrp3fW47Zt1A8Eg1atDwZ3oQQ</div>
+        <div class="actions"><button class="btn" type="button" onclick="navigator.clipboard.writeText(document.getElementById('wallet').innerText).then(()=>{this.innerText='کپی شد ✓';})">کپی آدرس کیف پول</button></div>
+      </li>
+      <li><b>ایمیل:</b> امضای تراکنش (transaction signature) و کد محصول را به این ایمیل بفرستید:
+        <br><span class="code">mehdivakili0@gmail.com</span>
+        <br><span class="note">Email the transaction signature and the product code to the address above. The files will be sent to the email you write from.</span>
+      </li>
+      <li><b>دریافت:</b> پرداخت روی بلاک‌چین بررسی می‌شود و فایل‌های کامل معمولاً تا یک ساعت بعد، خودکار با ایمیل می‌رسند.
+        <br><span class="note">Your payment is verified on-chain and the full files are emailed automatically, usually within an hour.</span>
+      </li>
+    </ol>
+    <p class="note">در حال حاضر فقط USDC پذیرفته می‌شود. لطفاً دقیقاً مبلغ محصول را بپردازید؛ پرداخت کمتر از مبلغ، تحویل داده نمی‌شود. | USDC only for now. Please pay the exact price; underpayments are not delivered.</p>
+  </div>
+
+  <div class="card">
+    <h2>ابزار ساخت لینک پرداخت</h2>
+    <p>اگر فریلنسر هستید و می‌خواهید لینک پرداخت کریپتویی خودتان را بسازید:</p>
+    <div class="actions"><a class="btn ghost" href="generator.html">ساخت لینک پرداخت ←</a></div>
+  </div>
 
   <footer>
-    This page never holds funds or private keys. Always verify the wallet address with the freelancer before paying.
+    سوال دارید؟ در ایکس پیام بدهید: <a href="https://x.com/mehdivakili060">@mehdivakili060</a>
   </footer>
 </div>
-
-<script>
-(function () {
-  "use strict";
-
-  var TOKENS = {
-    solana: [
-      { symbol: "SOL" },
-      { symbol: "USDC", mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
-      { symbol: "USDT", mint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB" }
-    ],
-    ethereum: [
-      { symbol: "ETH" },
-      { symbol: "USDT" },
-      { symbol: "USDC" }
-    ]
-  };
-
-  var $ = function (id) { return document.getElementById(id); };
-
-  var state = { chain: "solana" };
-
-  /* ---------- base64url helpers (UTF-8 safe) ---------- */
-  function b64urlEncode(str) {
-    return btoa(unescape(encodeURIComponent(str)))
-      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  }
-  function b64urlDecode(str) {
-    var s = str.replace(/-/g, "+").replace(/_/g, "/");
-    while (s.length % 4) s += "=";
-    return decodeURIComponent(escape(atob(s)));
-  }
-
-  /* ---------- validation ---------- */
-  function isSolanaAddress(v) { return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(v); }
-  function isEvmAddress(v) { return /^0x[0-9a-fA-F]{40}$/.test(v); }
-  function isValidAddress(chain, v) {
-    return chain === "solana" ? isSolanaAddress(v) : isEvmAddress(v);
-  }
-  function parseAmount(v) {
-    var n = Number(v);
-    return (typeof n === "number" && isFinite(n) && n > 0) ? n : null;
-  }
-
-  /* ---------- copy helper (clipboard API with fallback) ---------- */
-  function copyText(text, feedbackEl, doneText) {
-    function done() {
-      if (feedbackEl) feedbackEl.textContent = doneText || "Copied.";
-      setTimeout(function () { if (feedbackEl) feedbackEl.textContent = ""; }, 2500);
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
-    } else {
-      fallbackCopy(text, done);
-    }
-  }
-  function fallbackCopy(text, done) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed"; ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand("copy"); } catch (e) { /* ignore */ }
-    document.body.removeChild(ta);
-    done();
-  }
-
-  /* ---------- generator view ---------- */
-  function populateTokens() {
-    var sel = $("tokenSelect");
-    sel.innerHTML = "";
-    TOKENS[state.chain].forEach(function (t) {
-      var opt = document.createElement("option");
-      opt.value = t.symbol;
-      opt.textContent = t.symbol;
-      sel.appendChild(opt);
-    });
-    $("amountTokenTag").textContent = sel.value;
-    $("addressHint").textContent = state.chain === "solana"
-      ? "Solana address: 32–44 base58 characters."
-      : "Ethereum address: 0x followed by 40 hex characters.";
-    $("addressInput").placeholder = state.chain === "solana"
-      ? "e.g. DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK"
-      : "e.g. 0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
-  }
-
-  function setChain(chain) {
-    state.chain = chain;
-    $("chainSolana").setAttribute("aria-pressed", chain === "solana" ? "true" : "false");
-    $("chainEthereum").setAttribute("aria-pressed", chain === "ethereum" ? "true" : "false");
-    populateTokens();
-    hideError("address");
-    hideError("amount");
-  }
-
-  function showError(which, msg) {
-    var err = $(which + "Error");
-    err.textContent = msg;
-    err.classList.remove("hidden");
-    $(which + "Input").classList.add("invalid");
-  }
-  function hideError(which) {
-    $(which + "Error").classList.add("hidden");
-    $(which + "Input").classList.remove("invalid");
-  }
-
-  function buildPayload() {
-    return {
-      chain: state.chain,
-      token: $("tokenSelect").value,
-      address: $("addressInput").value.trim(),
-      amount: $("amountInput").value.trim(),
-      label: $("labelInput").value.trim()
-    };
-  }
-
-  function shareableLink(payload) {
-    var base = window.location.href.split("#")[0];
-    return base + "#pay=" + b64urlEncode(JSON.stringify(payload));
-  }
-
-  function generate() {
-    var payload = buildPayload();
-    var ok = true;
-    hideError("address");
-    hideError("amount");
-
-    if (!isValidAddress(payload.chain, payload.address)) {
-      showError("address", payload.chain === "solana"
-        ? "Enter a valid Solana address (32–44 base58 characters, no 0, O, I or l)."
-        : "Enter a valid Ethereum address (0x followed by 40 hex characters).");
-      ok = false;
-    }
-    var amount = parseAmount(payload.amount);
-    if (amount === null) {
-      showError("amount", "Enter an amount greater than 0.");
-      ok = false;
-    }
-    if (!ok) { $("resultBox").classList.add("hidden"); return; }
-
-    payload.amount = String(amount);
-    var link = shareableLink(payload);
-    $("resultLink").value = link;
-    $("previewLink").href = link;
-    $("copyFeedback").textContent = "";
-    $("resultBox").classList.remove("hidden");
-  }
-
-  /* ---------- pay view ---------- */
-  function truncateAddress(addr) {
-    if (addr.length <= 16) return addr;
-    return addr.slice(0, 6) + "…" + addr.slice(-4);
-  }
-
-  function renderPayView(payload) {
-    $("generatorView").classList.add("hidden");
-    $("payView").classList.remove("hidden");
-    document.title = "Pay " + payload.amount + " " + payload.token + " — Crypto Pay";
-
-    $("payAmount").textContent = payload.amount;
-    $("payToken").textContent = payload.token;
-    var labelEl = $("payLabel");
-    if (payload.label) { labelEl.textContent = payload.label; labelEl.classList.remove("hidden"); }
-    else { labelEl.classList.add("hidden"); }
-
-    var shortEl = $("payAddressShort");
-    shortEl.textContent = truncateAddress(payload.address);
-    shortEl.title = payload.address;
-
-    if (payload.chain === "solana") {
-      $("solanaPayRow").classList.remove("hidden");
-      $("evmRow").classList.add("hidden");
-      var token = null;
-      TOKENS.solana.forEach(function (t) { if (t.symbol === payload.token) token = t; });
-      var url = "solana:" + payload.address + "?amount=" + encodeURIComponent(payload.amount);
-      if (token && token.mint) url += "&spl-token=" + token.mint;
-      if (payload.label) url += "&label=" + encodeURIComponent(payload.label);
-      $("solanaPayBtn").href = url;
-    } else {
-      $("evmRow").classList.remove("hidden");
-      $("solanaPayRow").classList.add("hidden");
-      $("payAmountCopy").textContent = payload.amount + " " + payload.token;
-    }
-
-    $("copyAddressBtn").onclick = function () {
-      copyText(payload.address, $("payCopyFeedback"), "Address copied.");
-    };
-    $("copyAmountBtn").onclick = function () {
-      copyText(payload.amount + " " + payload.token, $("payCopyFeedback"), "Amount copied.");
-    };
-    $("copyPayLinkBtn").onclick = function () {
-      copyText(window.location.href, $("payCopyFeedback"), "Payment link copied.");
-    };
-  }
-
-  function parsePayHash() {
-    var hash = window.location.hash;
-    if (!hash || hash.indexOf("#pay=") !== 0) return null;
-    try {
-      var payload = JSON.parse(b64urlDecode(hash.slice(5)));
-      if (!payload || typeof payload !== "object") return "invalid";
-      if ((payload.chain !== "solana" && payload.chain !== "ethereum") ||
-          typeof payload.token !== "string" ||
-          !isValidAddress(payload.chain, String(payload.address || "")) ||
-          parseAmount(payload.amount) === null) {
-        return "invalid";
-      }
-      var known = TOKENS[payload.chain].some(function (t) { return t.symbol === payload.token; });
-      if (!known) return "invalid";
-      payload.amount = String(parseAmount(payload.amount));
-      return payload;
-    } catch (e) {
-      return "invalid";
-    }
-  }
-
-  /* ---------- wire up ---------- */
-  $("chainSolana").addEventListener("click", function () { setChain("solana"); });
-  $("chainEthereum").addEventListener("click", function () { setChain("ethereum"); });
-  $("tokenSelect").addEventListener("change", function () {
-    $("amountTokenTag").textContent = $("tokenSelect").value;
-  });
-  $("generateBtn").addEventListener("click", generate);
-  $("copyLinkBtn").addEventListener("click", function () {
-    copyText($("resultLink").value, $("copyFeedback"), "Link copied. Share it anywhere.");
-  });
-  $("makeOwnLink").addEventListener("click", function (e) {
-    e.preventDefault();
-    history.pushState("", document.title, window.location.pathname + window.location.search);
-    $("payView").classList.add("hidden");
-    $("generatorView").classList.remove("hidden");
-    document.title = "Crypto Pay — Shareable payment link for freelancers";
-  });
-  window.addEventListener("hashchange", function () {
-    var payload = parsePayHash();
-    if (payload && payload !== "invalid") {
-      $("badLinkBanner").classList.add("hidden");
-      renderPayView(payload);
-    } else if (payload === "invalid") {
-      $("payView").classList.add("hidden");
-      $("generatorView").classList.remove("hidden");
-      $("badLinkBanner").classList.remove("hidden");
-      document.title = "Crypto Pay — Shareable payment link for freelancers";
-    } else {
-      $("payView").classList.add("hidden");
-      $("generatorView").classList.remove("hidden");
-    }
-  });
-
-  /* ---------- init ---------- */
-  populateTokens();
-  var initial = parsePayHash();
-  if (initial && initial !== "invalid") {
-    renderPayView(initial);
-  } else if (initial === "invalid") {
-    $("badLinkBanner").classList.remove("hidden");
-  }
-})();
-</script>
 </body>
 </html>

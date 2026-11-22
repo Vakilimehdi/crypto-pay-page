@@ -1,16 +1,25 @@
 # Crypto Pay — shareable payment link for freelancers
 
+## Storefront
+
+`index.html` is now the storefront for Mehdi's digital products (one-page templates,
+AI landing template, budget spreadsheet, student shop manager). It lists the products
+with demo links and prices, and explains the buy flow: pay the exact USDC amount on
+Solana to the wallet shown, then email the transaction signature + product code to
+`mehdivakili0@gmail.com`. Delivery is automatic: an hourly checker verifies the
+payment on-chain and emails the full files. See `~/workspace/storefront/deliver.mjs`.
+
 A single static page that lets a freelancer generate a shareable payment link and lets a client open it and pay in crypto. No server, no build step, no database, no account.
 
 ## What it is
 
-- **Generator view (default):** the freelancer picks a chain (Solana or Ethereum), a token (SOL / USDC / USDT on Solana; ETH / USDT / USDC on Ethereum), enters their wallet address and an amount, optionally adds a label/memo, and gets a shareable payment link.
+- **Generator view (`generator.html`):** the freelancer picks a chain (Solana or Ethereum), a token (SOL / USDC / USDT on Solana; ETH / USDT / USDC on Ethereum), enters their wallet address and an amount, optionally adds a label/memo, and gets a shareable payment link.
 - **Pay view:** opening that link shows the client a clean "pay this freelancer" page — amount + token, the wallet address (truncated, with a copy button), and the label. On Solana it also offers a **Solana Pay deep link** (`solana:` URL) that opens the client's wallet with the payment pre-filled. On Ethereum it gives copy buttons for the address and amount, plus a short note (Ethereum has no reliable universal payment deep link).
 
 ## How to use
 
 ### As a freelancer
-1. Open `index.html` (or host it anywhere static — GitHub Pages, Netlify Drop, any web host).
+1. Open `generator.html` (or host it anywhere static — GitHub Pages, Netlify Drop, any web host).
 2. Pick your chain and token, paste your wallet address, enter the amount and an optional label.
 3. Click **Generate payment link**, copy the link, and send it to your client (chat, email, invoice, QR code).
 
