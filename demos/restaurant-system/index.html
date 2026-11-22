@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سیستم مدیریت رستوران</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf6f0;--card:#fff;--text:#292524;--muted:#78716c;--border:#e7e0d6;--primary:#9a3412;--primary-d:#7c2d12;--green:#15803d;--green-bg:#dcfce7;--amber:#b45309;--amber-bg:#fef3c7;--red:#b91c1c;--red-bg:#fee2e2}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Vazirmatn',Tahoma,sans-serif;line-height:1.7}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  h1{font-size:24px;margin:0}
+  h1 small{display:block;font-size:13px;color:var(--muted);font-weight:400}
+  h2{font-size:18px;margin:26px 0 10px}
+  h3{font-size:15px;margin:18px 0 8px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+  .tab{padding:9px 18px;border:1px solid var(--border);background:var(--card);border-radius:999px;cursor:pointer;font-family:inherit;font-size:14px}
+  .tab.active{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .stat b{font-size:22px;display:block}
+  .stat span{color:var(--muted);font-size:13px}
+  input,select{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;background:#fff}
+  .btn{padding:9px 18px;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-d)}
+  .btn-ghost{background:#fff;border:1px solid var(--border)}
+  .btn-green{background:var(--green);color:#fff}
+  .btn-red{background:var(--red);color:#fff}
+  .btn-sm{padding:5px 10px;font-size:13px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row input,.row select{flex:1;min-width:120px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:9px 8px;border-bottom:1px solid var(--border);text-align:right}
+  th{color:var(--muted);font-size:13px}
+  .muted{color:var(--muted);font-size:13px}
+  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .badge-free{background:var(--green-bg);color:var(--green)}
+  .badge-busy{background:var(--amber-bg);color:var(--amber)}
+  .badge-paid{background:var(--green-bg);color:var(--green)}
+  .tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+  .table-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;text-align:center}
+  .table-card.selected{border-color:var(--primary)}
+  .table-card b{font-size:17px;display:block}
+  .table-card .total{font-weight:700;color:var(--primary)}
+  .qty{display:inline-flex;align-items:center;gap:8px}
+  .qty button{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:16px;cursor:pointer;font-family:inherit}
+  .bar-row{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:14px}
+  .bar-row .lbl{width:140px;flex-shrink:0}
+  .bar{height:14px;background:var(--primary);border-radius:99px;min-width:4px}
+  .chip{padding:5px 12px;border:1px solid var(--border);background:#fff;border-radius:999px;cursor:pointer;font-family:inherit;font-size:13px}
+  .chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .note{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:14px}
+  @media print{
+    body *{visibility:hidden}
+    #bill-print,#bill-print *{visibility:visible}
+    #bill-print{position:absolute;top:0;right:0;left:0}
+  }
+  .demo-banner{background:#f59e0b;color:#1a1005;text-align:center;padding:9px 16px;font-weight:700;font-size:14px}
+</style>
+</head>
+<body>
+<div class="demo-banner">نسخهٔ نمایشی (دمو) — در این نسخه فقط یک سفارش آزمایشی می‌توانید ثبت و تسویه کنید. نسخهٔ کامل را بخرید.</div>
+<div class="wrap">
+  <header>
+    <h1 id="rest-name">🍽️ رستوران نمونه<small>سیستم مدیریت رستوران — منو، میزها، سفارش و گزارش روزانه</small></h1>
+    <button class="btn btn-ghost btn-sm" onclick="resetData()">برگرداندن داده‌های نمونه</button>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="tables" onclick="showTab('tables')">میزها و سفارش</button>
+    <button class="tab" data-tab="menu" onclick="showTab('menu')">مدیریت منو</button>
+    <button class="tab" data-tab="report" onclick="showTab('report')">گزارش روزانه</button>
+  </div>
+
+  <!-- ============ TABLES / ORDERS ============ -->
+  <section id="tab-tables">
+    <h2>میزها</h2>
+    <div class="tables" id="tables-grid"></div>
+
+    <div id="order-panel"></div>
+  </section>
+
+  <!-- ============ MENU ============ -->
+  <section id="tab-menu" style="display:none">
+    <h2>مدیریت منو</h2>
+    <div class="row" id="cat-filter" style="margin-bottom:12px"></div>
+    <div class="card">
+      <table>
+        <thead><tr><th>نام غذا</th><th>دسته</th><th>قیمت (تومان)</th><th></th></tr></thead>
+        <tbody id="menu-body"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>افزودن غذای جدید</h3>
+      <div class="row">
+        <input id="new-name" placeholder="نام غذا">
+        <select id="new-cat">
+          <option>پیش‌غذا</option><option>غذای اصلی</option><option>نوشیدنی</option><option>دسر</option>
+        </select>
+        <input id="new-price" type="number" min="0" placeholder="قیمت (تومان)">
+        <button class="btn btn-primary" onclick="addMenuItem()">افزودن</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DAILY REPORT ============ -->
+  <section id="tab-report" style="display:none">
+    <h2>گزارش روزانه</h2>
+    <div class="cards">
+      <div class="stat"><b id="rep-total">۰</b><span>فروش امروز (تومان)</span></div>
+      <div class="stat"><b id="rep-count">۰</b><span>سفارش‌های تسویه‌شده امروز</span></div>
+      <div class="stat"><b id="rep-avg">۰</b><span>میانگین هر سفارش (تومان)</span></div>
+      <div class="stat"><b id="rep-open">۰</b><span>سفارش باز</span></div>
+    </div>
+    <div class="card">
+      <h3>پرفروش‌ترین غذاهای امروز</h3>
+      <div id="top-items"></div>
+    </div>
+    <div class="card">
+      <h3>سفارش‌های تسویه‌شده امروز</h3>
+      <div id="paid-list"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const DEMO = true;
+// EDIT: نام رستوران خود را اینجا بنویسید
+const RESTAURANT_NAME = 'رستوران نمونه';
+// EDIT: غذاهای منو را اینجا تغییر دهید (نام، دسته، قیمت به تومان)
+const SEED_MENU = [
+  {id:1, name:'سالاد شیرازی', cat:'پیش‌غذا', price:85000},
+  {id:2, name:'سوپ جو', cat:'پیش‌غذا', price:120000},
+  {id:3, name:'ماست و خیار', cat:'پیش‌غذا', price:60000},
+  {id:4, name:'چلوکباب کوبیده', cat:'غذای اصلی', price:380000},
+  {id:5, name:'جوجه‌کباب', cat:'غذای اصلی', price:340000},
+  {id:6, name:'قورمه‌سبزی', cat:'غذای اصلی', price:290000},
+  {id:7, name:'زرشک‌پلو با مرغ', cat:'غذای اصلی', price:310000},
+  {id:8, name:'دوغ', cat:'نوشیدنی', price:45000},
+  {id:9, name:'نوشابه', cat:'نوشیدنی', price:40000},
+  {id:10, name:'چای', cat:'نوشیدنی', price:30000},
+  {id:11, name:'بستنی سنتی', cat:'دسر', price:90000},
+  {id:12, name:'ژله', cat:'دسر', price:70000}
+];
+// EDIT: میزهای رستوران را اینجا تغییر دهید
+const SEED_TABLES = [
+  {id:1, name:'میز ۱'},{id:2, name:'میز ۲'},{id:3, name:'میز ۳'},
+  {id:4, name:'میز ۴'},{id:5, name:'میز ۵'},{id:6, name:'میز ۶'}
+];
+const _today = new Date();
+function _at(h, m){ const d = new Date(_today.getFullYear(), _today.getMonth(), _today.getDate(), h, m); return d.toISOString(); }
+const SEED_ORDERS = [
+  {id:103, tableId:5, status:'open', createdAt:_at(14,5), paidAt:null,
+   lines:[{menuId:5, qty:1},{menuId:10, qty:2}]}
+];
+
+const KEY = 'restaurant-system-v1';
+let state = load();
+let selectedTable = null;
+let menuFilter = 'همه';
+let draftLines = []; // lines being edited for the selected table
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ const s = JSON.parse(raw); if(s && s.menu && s.tables && s.orders) return s; }
+  }catch(e){}
+  return seed();
+}
+function seed(){
+  return {
+    menu: JSON.parse(JSON.stringify(SEED_MENU)),
+    tables: JSON.parse(JSON.stringify(SEED_TABLES)),
+    orders: JSON.parse(JSON.stringify(SEED_ORDERS)),
+    nextMenuId: 13, nextOrderId: 104
+  };
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+function resetData(){
+  if(!confirm('داده‌های نمونه برگردد؟ همهٔ تغییرات پاک می‌شود.')) return;
+  state = seed(); selectedTable = null; draftLines = [];
+  save(); renderAll();
+}
+function fa(n){ return Number(n).toLocaleString('fa-IR'); }
+function faTime(iso){
+  const d = new Date(iso);
+  return d.toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'});
+}
+function todayStr(d){
+  d = d || new Date();
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+function menuById(id){ return state.menu.find(m=>m.id===id); }
+function openOrder(tableId){
+  return state.orders.find(o=>o.tableId===tableId && o.status==='open') || null;
+}
+function orderTotal(o){
+  return o.lines.reduce((s,l)=>{ const m = menuById(l.menuId); return s + (m ? m.price*l.qty : 0); }, 0);
+}
+function demoBlocked(){
+  if(!DEMO) return false;
+  return state.orders.some(o=>o.status==='paid');
+}
+
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  ['tables','menu','report'].forEach(n=>{
+    document.getElementById('tab-'+n).style.display = (n===name) ? '' : 'none';
+  });
+  if(name==='report') renderReport();
+  if(name==='menu') renderMenu();
+  if(name==='tables') renderTables();
+}
+
+/* ---------- menu ---------- */
+function renderMenu(){
+  const cats = ['همه','پیش‌غذا','غذای اصلی','نوشیدنی','دسر'];
+  document.getElementById('cat-filter').innerHTML = cats.map(c=>
+    `<button class="chip${menuFilter===c?' active':''}" onclick="setFilter('${c}')">${c}</button>`).join('');
+  const rows = state.menu.filter(m=>menuFilter==='همه' || m.cat===menuFilter);
+  document.getElementById('menu-body').innerHTML = rows.map(m=>`
+    <tr>
+      <td>${esc(m.name)}</td><td>${esc(m.cat)}</td><td>${fa(m.price)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editMenuItem(${m.id})">ویرایش قیمت</button>
+        <button class="btn btn-red btn-sm" onclick="deleteMenuItem(${m.id})">حذف</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="4" class="muted">غذایی در این دسته نیست.</td></tr>';
+}
+function setFilter(c){ menuFilter = c; renderMenu(); }
+function addMenuItem(){
+  const name = document.getElementById('new-name').value.trim();
+  const cat = document.getElementById('new-cat').value;
+  const price = parseInt(document.getElementById('new-price').value, 10);
+  if(!name){ alert('نام غذا را بنویسید.'); return; }
+  if(!price || price <= 0){ alert('قیمت معتبر وارد کنید.'); return; }
+  state.menu.push({id: state.nextMenuId++, name, cat, price});
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-price').value = '';
+  save(); renderMenu();
+}
+function editMenuItem(id){
+  const m = menuById(id); if(!m) return;
+  const v = prompt('قیمت جدید «'+m.name+'» (تومان):', m.price);
+  if(v === null) return;
+  const p = parseInt(v, 10);
+  if(!p || p <= 0){ alert('قیمت معتبر وارد کنید.'); return; }
+  m.price = p; save(); renderMenu(); renderTables();
+}
+function deleteMenuItem(id){
+  const m = menuById(id); if(!m) return;
+  if(state.orders.some(o=>o.status==='open' && o.lines.some(l=>l.menuId===id))){
+    alert('این غذا در یک سفارش باز هست؛ اول آن سفارش را تسویه کنید.'); return;
+  }
+  if(!confirm('«'+m.name+'» از منو حذف شود؟')) return;
+  state.menu = state.menu.filter(x=>x.id!==id);
+  save(); renderMenu();
+}
+
+/* ---------- tables & orders ---------- */
+function renderTables(){
+  const grid = document.getElementById('tables-grid');
+  grid.innerHTML = state.tables.map(t=>{
+    const o = openOrder(t.id);
+    const total = o ? orderTotal(o) : 0;
+    return `<div class="table-card${selectedTable===t.id?' selected':''}" onclick="selectTable(${t.id})">
+      <b>${esc(t.name)}</b>
+      ${o
+        ? `<span class="badge badge-busy">سفارش باز</span><div class="total">${fa(total)} تومان</div>`
+        : `<span class="badge badge-free">خالی</span><div class="muted">بدون سفارش</div>`}
+    </div>`;
+  }).join('');
+  renderOrderPanel();
+}
+function selectTable(id){
+  selectedTable = id;
+  const o = openOrder(id);
+  draftLines = o ? JSON.parse(JSON.stringify(o.lines)) : [];
+  renderTables();
+}
+function draftTotal(){
+  return draftLines.reduce((s,l)=>{ const m = menuById(l.menuId); return s + (m ? m.price*l.qty : 0); }, 0);
+}
+function addToDraft(menuId){
+  const line = draftLines.find(l=>l.menuId===menuId);
+  if(line) line.qty++;
+  else draftLines.push({menuId, qty:1});
+  renderOrderPanel();
+}
+function changeDraftQty(menuId, d){
+  const line = draftLines.find(l=>l.menuId===menuId);
+  if(!line) return;
+  line.qty += d;
+  if(line.qty <= 0) draftLines = draftLines.filter(l=>l.menuId!==menuId);
+  renderOrderPanel();
+}
+function renderOrderPanel(){
+  const el = document.getElementById('order-panel');
+  if(selectedTable === null){
+    el.innerHTML = '<p class="muted">برای ثبت سفارش، یک میز را انتخاب کنید.</p>';
+    return;
+  }
+  const t = state.tables.find(x=>x.id===selectedTable);
+  const existing = openOrder(selectedTable);
+  const blocked = DEMO && demoBlocked() && !existing;
+  const linesHtml = draftLines.map(l=>{
+    const m = menuById(l.menuId); if(!m) return '';
+    return `<tr><td>${esc(m.name)}</td><td>${fa(m.price)}</td>
+      <td><span class="qty">
+        <button onclick="changeDraftQty(${m.id},1)">+</button><b>${fa(l.qty)}</b>
+        <button onclick="changeDraftQty(${m.id},-1)">−</button>
+      </span></td>
+      <td>${fa(m.price*l.qty)}</td></tr>`;
+  }).join('');
+  const menuBtns = state.menu.map(m=>
+    `<button class="chip" onclick="addToDraft(${m.id})">${esc(m.name)} — ${fa(m.price)}</button>`).join('');
+  el.innerHTML = `
+  <div class="card">
+    <h3>سفارش ${esc(t.name)} ${existing ? '<span class="badge badge-busy">باز</span>' : ''}</h3>
+    ${blocked ? '<div class="note">نسخهٔ نمایشی: شما یک سفارش آزمایشی را تسویه کرده‌اید. برای ثبت سفارش بیشتر، نسخهٔ کامل را بخرید.</div>' : ''}
+    <div class="row" style="margin-bottom:12px">${menuBtns}</div>
+    ${draftLines.length ? `
+    <table>
+      <thead><tr><th>غذا</th><th>قیمت واحد</th><th>تعداد</th><th>جمع</th></tr></thead>
+      <tbody>${linesHtml}</tbody>
+    </table>
+    <p><b>جمع سفارش: ${fa(draftTotal())} تومان</b></p>
+    <div class="row">
+      <button class="btn btn-primary" ${blocked?'disabled':''} onclick="saveOrder()">ثبت سفارش</button>
+      <button class="btn btn-green" ${!existing?'disabled':''} onclick="payOrder()">تسویه و پرداخت</button>
+      <button class="btn btn-ghost" ${!existing?'disabled':''} onclick="printBill()">چاپ صورتحساب</button>
+    </div>` : '<p class="muted">هنوز غذایی انتخاب نشده — از دکمه‌های بالا غذا اضافه کنید.</p>'}
+  </div>
+  ${existing ? `<div class="card" id="bill-print">
+    <h3>صورتحساب ${esc(t.name)}</h3>
+    <table>
+      <thead><tr><th>غذا</th><th>تعداد</th><th>جمع (تومان)</th></tr></thead>
+      <tbody>${existing.lines.map(l=>{ const m = menuById(l.menuId); if(!m) return '';
+        return `<tr><td>${esc(m.name)}</td><td>${fa(l.qty)}</td><td>${fa(m.price*l.qty)}</td></tr>`; }).join('')}</tbody>
+    </table>
+    <p><b>جمع کل: ${fa(orderTotal(existing))} تومان</b></p>
+    <p class="muted">ساعت ثبت: ${faTime(existing.createdAt)}</p>
+  </div>` : ''}`;
+}
+function saveOrder(){
+  if(selectedTable === null) return;
+  if(!draftLines.length){ alert('اول غذا اضافه کنید.'); return; }
+  if(DEMO && demoBlocked() && !openOrder(selectedTable)){
+    alert('نسخهٔ نمایشی: فقط یک سفارش آزمایشی می‌توانید ثبت کنید.'); return;
+  }
+  const existing = openOrder(selectedTable);
+  if(existing){
+    existing.lines = JSON.parse(JSON.stringify(draftLines));
+  }else{
+    state.orders.push({id: state.nextOrderId++, tableId: selectedTable, status:'open',
+      createdAt: new Date().toISOString(), paidAt: null,
+      lines: JSON.parse(JSON.stringify(draftLines))});
+  }
+  save(); renderTables();
+}
+function payOrder(){
+  const o = openOrder(selectedTable);
+  if(!o) return;
+  if(!confirm('صورتحساب '+esc(state.tables.find(t=>t.id===selectedTable).name)+' به مبلغ '+fa(orderTotal(o))+' تومان تسویه شود؟')) return;
+  o.status = 'paid';
+  o.paidAt = new Date().toISOString();
+  save(); renderTables();
+  alert('تسویه شد. ' + (DEMO ? 'این سفارش آزمایشی شما بود.' : ''));
+}
+function printBill(){
+  if(!openOrder(selectedTable)) return;
+  window.print();
+}
+
+/* ---------- report ---------- */
+function renderReport(){
+  const today = todayStr();
+  const paid = state.orders.filter(o=>o.status==='paid' && o.paidAt && todayStr(new Date(o.paidAt))===today);
+  const open = state.orders.filter(o=>o.status==='open');
+  const total = paid.reduce((s,o)=>s+orderTotal(o), 0);
+  document.getElementById('rep-total').textContent = fa(total);
+  document.getElementById('rep-count').textContent = fa(paid.length);
+  document.getElementById('rep-avg').textContent = fa(paid.length ? Math.round(total/paid.length) : 0);
+  document.getElementById('rep-open').textContent = fa(open.length);
+  const counts = {};
+  paid.forEach(o=>o.lines.forEach(l=>{
+    const m = menuById(l.menuId); if(!m) return;
+    counts[m.name] = (counts[m.name]||0) + l.qty;
+  }));
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const max = top.length ? top[0][1] : 1;
+  document.getElementById('top-items').innerHTML = top.length ? top.map(([name,qty])=>`
+    <div class="bar-row"><span class="lbl">${esc(name)}</span>
+    <div class="bar" style="width:${Math.round(qty/max*100)}%"></div><b>${fa(qty)}</b></div>`).join('')
+    : '<p class="muted">امروز هنوز سفارشی تسویه نشده است.</p>';
+  document.getElementById('paid-list').innerHTML = paid.length ? paid.map(o=>{
+    const t = state.tables.find(x=>x.id===o.tableId);
+    return `<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--border);padding:8px 0">
+      <span>${t ? esc(t.name) : ''} — ${faTime(o.paidAt)}</span>
+      <span><span class="badge badge-paid">تسویه‌شده</span> <b>${fa(orderTotal(o))} تومان</b></span>
+    </div>`;
+  }).join('') : '<p class="muted">امروز هنوز سفارشی تسویه نشده است.</p>';
+}
+
+/* ---------- utils ---------- */
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+document.getElementById('rest-name').firstChild.textContent = '🍽️ ' + RESTAURANT_NAME;
+renderAll();
+function renderAll(){ renderTables(); renderMenu(); renderReport(); }
+</script>
+</body>
+</html>

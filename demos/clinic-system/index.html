@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- پروژه دانشجویی: سیستم نوبت‌دهی کلینیک — تک‌فایل، بدون نیاز به نصب، داده‌ها در localStorage ذخیره می‌شوند -->
+<!-- EDIT: نام کلینیک را اینجا عوض کنید -->
+<title>سیستم نوبت‌دهی کلینیک</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f1f5f9; --card:#fff; --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
+    --accent:#0d9488; --accent2:#2563eb; --danger:#dc2626; --warn:#d97706; --radius:12px}
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{background:var(--bg); color:var(--text); font-family:'Vazirmatn',Tahoma,sans-serif; line-height:1.7}
+  .wrap{max-width:1020px; margin:0 auto; padding:0 16px}
+  header{background:var(--text); color:#fff; padding:22px 0}
+  header h1{font-size:22px}
+  header p{color:#cbd5e1; font-size:14px}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:20px 0}
+  .stat{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px}
+  .stat b{display:block; font-size:24px}
+  .stat span{font-size:13px; color:var(--muted)}
+  .tabs{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap}
+  .tab{padding:9px 18px; border:1px solid var(--border); background:var(--card); border-radius:999px; cursor:pointer; font-family:inherit; font-size:14px}
+  .tab.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px}
+  .panel h2{font-size:18px; margin-bottom:14px}
+  table{width:100%; border-collapse:collapse; font-size:14px}
+  th,td{padding:10px 8px; border-bottom:1px solid var(--border); text-align:right; vertical-align:top}
+  th{background:#f8fafc}
+  form{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-end}
+  form label{font-size:13px; color:var(--muted); display:block; margin-bottom:4px}
+  input,select,textarea{padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; background:#fff}
+  .btn{padding:9px 18px; border:none; border-radius:8px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:700}
+  .btn-primary{background:var(--accent); color:#fff}
+  .btn-blue{background:var(--accent2); color:#fff}
+  .btn-danger{background:var(--danger); color:#fff}
+  .btn-ghost{background:#fff; border:1px solid var(--border)}
+  .btn-sm{padding:5px 12px; font-size:13px}
+  .muted{color:var(--muted); font-size:13px}
+  .badge{display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700}
+  .badge-booked{background:#dcfce7; color:#166534}
+  .badge-cancelled{background:#fee2e2; color:#991b1b}
+  .badge-done{background:#e0e7ff; color:#3730a3}
+  .search-row{display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap}
+  #todayList,#apptList,#todayPanelList,#doctorList,#patientList{overflow-x:auto}
+  #todayList table,#apptList table,#todayPanelList table,#doctorList table,#patientList table{min-width:640px}
+  .demo-banner{background:#f59e0b; color:#1a1005; text-align:center; padding:9px 16px; font-weight:700; font-size:14px}
+  .search-row input{flex:1; min-width:200px}
+  footer{color:var(--muted); font-size:13px; text-align:center; padding:20px 0 30px}
+  @media (max-width:640px){ .stats{grid-template-columns:repeat(2,1fr)} table{font-size:13px} }
+  @media print{
+    header,.tabs,form,.search-row,.no-print,footer{display:none !important}
+    body{background:#fff}
+    .panel{border:none}
+  }
+</style>
+</head>
+<body>
+<div class="demo-banner">نسخهٔ نمایشی (دمو) — در این نسخه فقط یک نوبت آزمایشی می‌توانید ثبت کنید و چاپ فهرست غیرفعال است. نسخهٔ کامل را بخرید.</div>
+<header>
+  <div class="wrap">
+    <!-- EDIT: نام و توضیح کلینیک -->
+    <h1>🏥 سیستم نوبت‌دهی کلینیک</h1>
+    <p>مدیریت پزشکان، بیماران و نوبت‌ها — بدون نصب، بدون سرور</p>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><b id="statDoctors">۰</b><span>پزشک</span></div>
+    <div class="stat"><b id="statPatients">۰</b><span>بیمار</span></div>
+    <div class="stat"><b id="statToday">۰</b><span>نوبت امروز</span></div>
+    <div class="stat"><b id="statUpcoming">۰</b><span>نوبت آینده</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="dashboard">داشبورد</button>
+    <button class="tab" data-tab="appointments">نوبت‌ها</button>
+    <button class="tab" data-tab="today">نوبت‌های امروز</button>
+    <button class="tab" data-tab="doctors">پزشکان</button>
+    <button class="tab" data-tab="patients">بیماران</button>
+  </div>
+
+  <!-- داشبورد -->
+  <section class="panel" id="panel-dashboard">
+    <h2>نوبت جدید</h2>
+    <form id="bookForm">
+      <div><label>بیمار</label><select id="bkPatient" required></select></div>
+      <div><label>پزشک</label><select id="bkDoctor" required></select></div>
+      <div><label>تاریخ</label><input type="date" id="bkDate" required></div>
+      <div><label>ساعت</label><select id="bkTime" required></select></div>
+      <div><label>علت مراجعه</label><input type="text" id="bkNote" placeholder="مثلاً: معاینهٔ دوره‌ای"></div>
+      <button class="btn btn-primary" type="submit" id="bkSubmit">ثبت نوبت</button>
+      <button class="btn btn-ghost" type="button" id="bkCancelEdit" style="display:none">لغو ویرایش</button>
+    </form>
+    <h2>نوبت‌های امروز</h2>
+    <div id="todayList"></div>
+  </section>
+
+  <!-- همهٔ نوبت‌ها -->
+  <section class="panel" id="panel-appointments" style="display:none">
+    <h2>همهٔ نوبت‌ها</h2>
+    <div class="search-row">
+      <input type="text" id="searchAppt" placeholder="جستجو بر اساس نام بیمار یا پزشک…">
+      <input type="date" id="filterDate" title="فیلتر بر اساس تاریخ">
+      <button class="btn btn-ghost" id="clearFilter" type="button">پاک کردن فیلتر</button>
+    </div>
+    <div id="apptList"></div>
+  </section>
+
+  <!-- نوبت‌های امروز -->
+  <section class="panel" id="panel-today" style="display:none">
+    <h2>نوبت‌های امروز <span class="muted" id="todayDateLabel"></span></h2>
+    <div id="todayPanelList"></div>
+    <button class="btn btn-blue no-print" id="printToday" type="button">🖨️ چاپ فهرست امروز</button>
+  </section>
+
+  <!-- پزشکان -->
+  <section class="panel" id="panel-doctors" style="display:none">
+    <h2>پزشکان</h2>
+    <form id="doctorForm">
+      <div><label>نام پزشک</label><input type="text" id="drName" placeholder="دکتر سارا احمدی" required></div>
+      <div><label>تخصص</label><input type="text" id="drSpec" placeholder="پزشک عمومی" required></div>
+      <div><label>تلفن</label><input type="tel" id="drPhone" placeholder="۰۹۱۲…" dir="ltr" style="text-align:right"></div>
+      <button class="btn btn-primary" type="submit">افزودن پزشک</button>
+    </form>
+    <div id="doctorList"></div>
+  </section>
+
+  <!-- بیماران -->
+  <section class="panel" id="panel-patients" style="display:none">
+    <h2>بیماران</h2>
+    <form id="patientForm">
+      <div><label>نام بیمار</label><input type="text" id="ptName" placeholder="احمد رضایی" required></div>
+      <div><label>تلفن</label><input type="tel" id="ptPhone" placeholder="۰۹۱۲…" dir="ltr" style="text-align:right"></div>
+      <div><label>سن</label><input type="number" id="ptAge" min="0" max="120" placeholder="۳۴"></div>
+      <button class="btn btn-primary" type="submit">افزودن بیمار</button>
+    </form>
+    <div id="patientList"></div>
+  </section>
+
+  <footer>
+    داده‌ها در مرورگر شما (localStorage) ذخیره می‌شود.
+    <button class="btn btn-ghost btn-sm no-print" id="resetData" type="button">برگرداندن داده‌های نمونه</button>
+  </footer>
+</div>
+
+<script>
+/* ---------- داده‌ها ---------- */
+const LS_KEY = 'clinic-db-demo-v1';
+function isoDay(offset){
+  const d = new Date(); d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0,10);
+}
+/* EDIT: داده‌های نمونه — پزشکان، بیماران و نوبت‌های پیش‌فرض */
+const SEED = {
+  doctors: [
+    {id:1, name:'دکتر سارا احمدی', spec:'پزشک عمومی', phone:'09123456789'},
+    {id:2, name:'دکتر رضا محمدی', spec:'دندان‌پزشکی', phone:'09129876543'},
+    {id:3, name:'دکتر مریم کریمی', spec:'پوست و مو', phone:'09125556666'},
+    {id:4, name:'دکتر علی حسینی', spec:'چشم‌پزشکی', phone:'09127778888'}
+  ],
+  patients: [
+    {id:1, name:'احمد رضایی', phone:'09121111111', age:34},
+    {id:2, name:'مریم محمدی', phone:'09122222222', age:28},
+    {id:3, name:'حسین کریمی', phone:'09123333333', age:45},
+    {id:4, name:'فاطمه حسینی', phone:'09124444444', age:52},
+    {id:5, name:'علی احمدی', phone:'09125555555', age:19}
+  ],
+  appointments: [
+    {id:1, patientId:1, doctorId:1, date:isoDay(0), time:'09:00', note:'معاینهٔ دوره‌ای', status:'booked'},
+    {id:2, patientId:2, doctorId:2, date:isoDay(0), time:'10:30', note:'درد دندان', status:'booked'},
+    {id:3, patientId:3, doctorId:3, date:isoDay(0), time:'11:00', note:'مشاورهٔ پوست', status:'booked'},
+    {id:4, patientId:4, doctorId:4, date:isoDay(1), time:'09:30', note:'معاینهٔ چشم', status:'booked'},
+    {id:5, patientId:5, doctorId:1, date:isoDay(-1), time:'08:30', note:'سرماخوردگی', status:'done'}
+  ]
+};
+let db;
+try { db = JSON.parse(localStorage.getItem(LS_KEY)) || null; } catch(e){ db = null; }
+if(!db || !Array.isArray(db.doctors)) db = JSON.parse(JSON.stringify(SEED));
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+function nextId(list){ return list.reduce((m,x)=>Math.max(m,x.id),0) + 1; }
+
+/* ---------- ابزار ---------- */
+const faNum = s => String(s).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const faDate = iso => { try { return new Date(iso+'T12:00:00').toLocaleDateString('fa-IR'); } catch(e){ return iso; } };
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const todayISO = () => new Date().toISOString().slice(0,10);
+const doctorById = id => db.doctors.find(d=>d.id===id) || {name:'—', spec:''};
+const patientById = id => db.patients.find(p=>p.id===id) || {name:'—'};
+const STATUS_FA = {booked:'رزرو شده', cancelled:'لغوشده', done:'انجام‌شده'};
+const STATUS_CLASS = {booked:'badge-booked', cancelled:'badge-cancelled', done:'badge-done'};
+
+/* ---------- رندر ---------- */
+function renderStats(){
+  const today = todayISO();
+  document.getElementById('statDoctors').textContent = faNum(db.doctors.length);
+  document.getElementById('statPatients').textContent = faNum(db.patients.length);
+  document.getElementById('statToday').textContent = faNum(db.appointments.filter(a=>a.date===today && a.status==='booked').length);
+  document.getElementById('statUpcoming').textContent = faNum(db.appointments.filter(a=>a.date>=today && a.status==='booked').length);
+}
+function apptRow(a, showActions){
+  const p = patientById(a.patientId), d = doctorById(a.doctorId);
+  let acts = '';
+  if(showActions && a.status==='booked'){
+    acts = '<button class="btn btn-ghost btn-sm" onclick="startReschedule('+a.id+')">جابه‌جایی</button> ' +
+           '<button class="btn btn-danger btn-sm" onclick="cancelAppt('+a.id+')">لغو</button>';
+    if(a.date < todayISO()) acts += ' <button class="btn btn-blue btn-sm" onclick="markDone('+a.id+')">انجام شد</button>';
+  }
+  return '<tr><td>'+esc(p.name)+'</td><td>'+esc(d.name)+'<br><span class="muted">'+esc(d.spec)+'</span></td>' +
+    '<td>'+faDate(a.date)+'</td><td>'+faNum(a.time)+'</td><td>'+esc(a.note||'')+'</td>' +
+    '<td><span class="badge '+STATUS_CLASS[a.status]+'">'+STATUS_FA[a.status]+'</span></td><td>'+acts+'</td></tr>';
+}
+function apptTable(list, emptyMsg){
+  if(!list.length) return '<p class="muted">'+emptyMsg+'</p>';
+  return '<table><thead><tr><th>بیمار</th><th>پزشک</th><th>تاریخ</th><th>ساعت</th><th>علت</th><th>وضعیت</th><th></th></tr></thead><tbody>' +
+    list.map(a=>apptRow(a,true)).join('') + '</tbody></table>';
+}
+function renderToday(){
+  const today = todayISO();
+  document.getElementById('todayDateLabel').textContent = '— ' + faDate(today);
+  const list = db.appointments.filter(a=>a.date===today && a.status==='booked')
+    .sort((x,y)=>x.time.localeCompare(y.time));
+  const html = apptTable(list, 'برای امروز نوبتی ثبت نشده است.');
+  document.getElementById('todayList').innerHTML = html;
+  document.getElementById('todayPanelList').innerHTML = html;
+}
+function renderAppointments(){
+  const q = (document.getElementById('searchAppt').value||'').trim();
+  const fd = document.getElementById('filterDate').value;
+  let list = db.appointments.slice().sort((x,y)=>(x.date+x.time).localeCompare(y.date+y.time));
+  if(fd) list = list.filter(a=>a.date===fd);
+  if(q) list = list.filter(a => patientById(a.patientId).name.includes(q) || doctorById(a.doctorId).name.includes(q));
+  document.getElementById('apptList').innerHTML = apptTable(list, 'نوبتی پیدا نشد.');
+}
+function renderDoctors(){
+  const el = document.getElementById('doctorList');
+  if(!db.doctors.length){ el.innerHTML = '<p class="muted">پزشکی ثبت نشده است.</p>'; return; }
+  el.innerHTML = '<table><thead><tr><th>نام</th><th>تخصص</th><th>تلفن</th><th>نوبت‌های فعال</th><th></th></tr></thead><tbody>' +
+    db.doctors.map(d=>{
+      const n = db.appointments.filter(a=>a.doctorId===d.id && a.status==='booked' && a.date>=todayISO()).length;
+      return '<tr><td>'+esc(d.name)+'</td><td>'+esc(d.spec)+'</td><td dir="ltr">'+esc(d.phone||'')+'</td><td>'+faNum(n)+'</td>' +
+        '<td><button class="btn btn-danger btn-sm" onclick="deleteDoctor('+d.id+')">حذف</button></td></tr>';
+    }).join('') + '</tbody></table>';
+}
+function renderPatients(){
+  const el = document.getElementById('patientList');
+  if(!db.patients.length){ el.innerHTML = '<p class="muted">بیماری ثبت نشده است.</p>'; return; }
+  el.innerHTML = '<table><thead><tr><th>نام</th><th>تلفن</th><th>سن</th><th>نوبت‌های فعال</th><th></th></tr></thead><tbody>' +
+    db.patients.map(p=>{
+      const n = db.appointments.filter(a=>a.patientId===p.id && a.status==='booked' && a.date>=todayISO()).length;
+      return '<tr><td>'+esc(p.name)+'</td><td dir="ltr">'+esc(p.phone||'')+'</td><td>'+(p.age?faNum(p.age):'')+'</td><td>'+faNum(n)+'</td>' +
+        '<td><button class="btn btn-danger btn-sm" onclick="deletePatient('+p.id+')">حذف</button></td></tr>';
+    }).join('') + '</tbody></table>';
+}
+function fillSelects(){
+  const ps = document.getElementById('bkPatient');
+  const ds = document.getElementById('bkDoctor');
+  ps.innerHTML = db.patients.map(p=>'<option value="'+p.id+'">'+esc(p.name)+'</option>').join('');
+  ds.innerHTML = db.doctors.map(d=>'<option value="'+d.id+'">'+esc(d.name)+' — '+esc(d.spec)+'</option>').join('');
+  const ts = document.getElementById('bkTime');
+  if(!ts.options.length){
+    let opts = '';
+    for(let h=8; h<20; h++){ opts += '<option value="'+String(h).padStart(2,'0')+':00">'+faNum(String(h).padStart(2,'0')+':00')+'</option>'; }
+    ts.innerHTML = opts;
+  }
+}
+function renderAll(){ renderStats(); renderToday(); renderAppointments(); renderDoctors(); renderPatients(); fillSelects(); }
+
+/* ---------- تب‌ها ---------- */
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ['dashboard','appointments','today','doctors','patients'].forEach(t=>{
+      document.getElementById('panel-'+t).style.display = (t===btn.dataset.tab) ? '' : 'none';
+    });
+  });
+});
+
+/* ---------- نوبت ---------- */
+let editingId = null;
+document.getElementById('bookForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const patientId = +document.getElementById('bkPatient').value;
+  const doctorId = +document.getElementById('bkDoctor').value;
+  const date = document.getElementById('bkDate').value;
+  const time = document.getElementById('bkTime').value;
+  const note = document.getElementById('bkNote').value.trim();
+  if(!patientId || !doctorId || !date || !time){ alert('همهٔ فیلدها را کامل کنید.'); return; }
+  if(!editingId && (db.demoBooked||0) >= 1){ alert('نسخهٔ نمایشی: فقط یک نوبت آزمایشی می‌توانید ثبت کنید. برای استفادهٔ نامحدود، نسخهٔ کامل را بخرید.'); return; }
+  const clash = db.appointments.find(a=>a.doctorId===doctorId && a.date===date && a.time===time && a.status==='booked' && a.id!==editingId);
+  if(clash){ alert('این پزشک در این تاریخ و ساعت نوبت دیگری دارد. ساعت دیگری انتخاب کنید.'); return; }
+  if(editingId){
+    const a = db.appointments.find(x=>x.id===editingId);
+    if(a){ a.patientId=patientId; a.doctorId=doctorId; a.date=date; a.time=time; a.note=note; }
+    editingId = null;
+    document.getElementById('bkSubmit').textContent = 'ثبت نوبت';
+    document.getElementById('bkCancelEdit').style.display = 'none';
+  } else {
+    db.appointments.push({id:nextId(db.appointments), patientId, doctorId, date, time, note, status:'booked'});
+    db.demoBooked = (db.demoBooked||0) + 1;
+  }
+  save(); renderAll(); e.target.reset();
+  document.getElementById('bkDate').value = todayISO();
+});
+document.getElementById('bkCancelEdit').addEventListener('click', ()=>{
+  editingId = null;
+  document.getElementById('bkSubmit').textContent = 'ثبت نوبت';
+  document.getElementById('bkCancelEdit').style.display = 'none';
+  document.getElementById('bookForm').reset();
+  document.getElementById('bkDate').value = todayISO();
+});
+window.startReschedule = function(id){
+  const a = db.appointments.find(x=>x.id===id);
+  if(!a) return;
+  editingId = id;
+  document.getElementById('bkPatient').value = a.patientId;
+  document.getElementById('bkDoctor').value = a.doctorId;
+  document.getElementById('bkDate').value = a.date;
+  document.getElementById('bkTime').value = a.time;
+  document.getElementById('bkNote').value = a.note || '';
+  document.getElementById('bkSubmit').textContent = 'ثبت جابه‌جایی';
+  document.getElementById('bkCancelEdit').style.display = '';
+  document.querySelector('[data-tab="dashboard"]').click();
+  document.getElementById('panel-dashboard').scrollIntoView({behavior:'smooth'});
+};
+window.cancelAppt = function(id){
+  if(!confirm('این نوبت لغو شود؟')) return;
+  const a = db.appointments.find(x=>x.id===id);
+  if(a){ a.status='cancelled'; save(); renderAll(); }
+};
+window.markDone = function(id){
+  const a = db.appointments.find(x=>x.id===id);
+  if(a){ a.status='done'; save(); renderAll(); }
+};
+
+/* ---------- پزشک و بیمار ---------- */
+document.getElementById('doctorForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('drName').value.trim();
+  const spec = document.getElementById('drSpec').value.trim();
+  const phone = document.getElementById('drPhone').value.trim();
+  if(!name || !spec) return;
+  db.doctors.push({id:nextId(db.doctors), name, spec, phone});
+  save(); renderAll(); e.target.reset();
+});
+document.getElementById('patientForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('ptName').value.trim();
+  const phone = document.getElementById('ptPhone').value.trim();
+  const age = parseInt(document.getElementById('ptAge').value, 10);
+  if(!name) return;
+  db.patients.push({id:nextId(db.patients), name, phone, age: isNaN(age)?'':age});
+  save(); renderAll(); e.target.reset();
+});
+window.deleteDoctor = function(id){
+  if(db.appointments.some(a=>a.doctorId===id && a.status==='booked')){ alert('این پزشک نوبت فعال دارد؛ اول نوبت‌هایش را لغو کنید.'); return; }
+  if(!confirm('این پزشک حذف شود؟')) return;
+  db.doctors = db.doctors.filter(d=>d.id!==id);
+  save(); renderAll();
+};
+window.deletePatient = function(id){
+  if(db.appointments.some(a=>a.patientId===id && a.status==='booked')){ alert('این بیمار نوبت فعال دارد؛ اول نوبت‌هایش را لغو کنید.'); return; }
+  if(!confirm('این بیمار حذف شود؟')) return;
+  db.patients = db.patients.filter(p=>p.id!==id);
+  save(); renderAll();
+};
+
+/* ---------- جستجو، فیلتر، چاپ، ریست ---------- */
+document.getElementById('searchAppt').addEventListener('input', renderAppointments);
+document.getElementById('filterDate').addEventListener('change', renderAppointments);
+document.getElementById('clearFilter').addEventListener('click', ()=>{
+  document.getElementById('searchAppt').value = '';
+  document.getElementById('filterDate').value = '';
+  renderAppointments();
+});
+document.getElementById('printToday').addEventListener('click', ()=>alert('نسخهٔ نمایشی: چاپ فهرست در نسخهٔ کامل فعال است.'));
+document.getElementById('resetData').addEventListener('click', ()=>{
+  if(!confirm('داده‌ها به نمونه‌های اولیه برگردد؟')) return;
+  db = JSON.parse(JSON.stringify(SEED));
+  save(); renderAll();
+});
+
+/* ---------- شروع ---------- */
+document.getElementById('bkDate').value = todayISO();
+renderAll();
+</script>
+</body>
+</html>
